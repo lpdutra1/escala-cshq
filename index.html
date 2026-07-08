@@ -22,7 +22,7 @@
             color: var(--text-color);
             line-height: 1.6;
             margin: 0;
-            padding: 15px; /* Reduzido levemente para telas menores */
+            padding: 15px;
         }
 
         .container {
@@ -46,7 +46,6 @@
             border-radius: 0 8px 8px 0;
         }
 
-        /* Estilos da Tabela Clássica (Desktop) */
         .table-responsive {
             width: 100%;
             margin-bottom: 20px;
@@ -98,22 +97,11 @@
             background-color: #2c5282;
         }
 
-        /* ----- MÁGICA DA RESPONSIVIDADE (CELULARES) ----- */
+        /* ----- RESPONSIVIDADE PARA CELULARES ----- */
         @media screen and (max-width: 768px) {
-            .container {
-                padding: 15px;
-            }
-            
-            table, thead, tbody, th, td, tr {
-                display: block;
-            }
-            
-            /* Esconde o cabeçalho original da tabela */
-            thead tr {
-                display: none;
-            }
-            
-            /* Transforma cada linha (pergunta) em um cartão */
+            .container { padding: 15px; }
+            table, thead, tbody, th, td, tr { display: block; }
+            thead tr { display: none; }
             tr {
                 margin-bottom: 20px;
                 border: 1px solid var(--secondary-color);
@@ -122,14 +110,7 @@
                 background-color: #fff;
                 box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             }
-            
-            td {
-                border: none;
-                padding: 10px 5px;
-                text-align: left;
-            }
-            
-            /* Estilo do número da questão */
+            td { border: none; padding: 10px 5px; text-align: left; }
             td:nth-child(1) {
                 font-weight: bold;
                 color: white;
@@ -139,16 +120,12 @@
                 border-radius: 4px;
                 margin-bottom: 10px;
             }
-            
-            /* Estilo do texto da pergunta */
             td:nth-child(2) {
                 font-size: 1.1em;
                 margin-bottom: 15px;
                 border-bottom: 1px solid var(--border-color);
                 padding-bottom: 15px;
             }
-            
-            /* Áreas de toque para os Radio Buttons (Sempre, Às vezes, Raramente) */
             td:nth-child(3), td:nth-child(4), td:nth-child(5) {
                 display: flex;
                 align-items: center;
@@ -157,19 +134,11 @@
                 border-radius: 6px;
                 border: 1px solid var(--border-color);
             }
-            
-            /* Insere os rótulos dinamicamente ao lado dos botões no celular */
             td:nth-child(3)::before { content: "Sempre (5-7 vezes/sem):"; font-weight: bold; color: var(--text-color); flex-grow: 1; }
             td:nth-child(4)::before { content: "Às vezes (2-4 vezes/sem):"; font-weight: bold; color: var(--text-color); flex-grow: 1; }
             td:nth-child(5)::before { content: "Raramente (0-1 vez/sem):"; font-weight: bold; color: var(--text-color); flex-grow: 1; }
-
-            /* Aumenta a área de toque do botão no celular */
-            input[type="radio"] {
-                transform: scale(1.6);
-                margin-right: 10px;
-            }
+            input[type="radio"] { transform: scale(1.6); margin-right: 10px; }
         }
-        /* ------------------------------------------------ */
 
         #result-section {
             display: none;
@@ -222,21 +191,9 @@
             margin-top: 20px;
         }
 
-        .print-btn:hover {
-            background-color: #2f855a;
-        }
-
-        .note {
-            font-size: 0.85em;
-            color: #718096;
-            margin-top: 5px;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
+        .print-btn:hover { background-color: #2f855a; }
+        .note { font-size: 0.85em; color: #718096; margin-top: 5px; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @media print {
             body { background: white; padding: 0; }
             .container { box-shadow: none; max-width: 100%; padding: 0; }
@@ -333,4 +290,194 @@
                 <p>Nível: <strong id="levelS5"></strong></p>
             </div>
             <div class="subscale-item">
-                <h4>6. Parassônias
+                <h4>6. Parassônias (Pesadelos/Movimentos)</h4>
+                <strong>Pontuação: <span id="scoreS6"></span> / 18</strong>
+                <p>Nível: <strong id="levelS6"></strong></p>
+            </div>
+            <div class="subscale-item">
+                <h4>7. Distúrbios Respiratórios do Sono</h4>
+                <strong>Pontuação: <span id="scoreS7"></span> / 9</strong>
+                <p>Nível: <strong id="levelS7"></strong></p>
+            </div>
+            <div class="subscale-item">
+                <h4>8. Sonolência Diurna</h4>
+                <strong>Pontuação: <span id="scoreS8"></span> / 30</strong>
+                <p>Nível: <strong id="levelS8"></strong></p>
+            </div>
+        </div>
+
+        <div class="answers-log">
+            <h4>Registro Completo das Respostas Assinaladas:</h4>
+            <ul id="answersList" style="list-style-type: none; padding-left: 0;"></ul>
+        </div>
+
+        <button type="button" class="print-btn" onclick="window.print()">🖨️ Imprimir / Gerar PDF do Relatório</button>
+        <button type="button" style="background-color:#718096; margin-top:10px;" onclick="location.reload()">Refazer Questionário</button>
+    </div>
+</div>
+
+<script>
+    // Envolvemos tudo no evento window.onload para garantir que a página exista antes do script rodar
+    window.onload = function() {
+        const items = [
+            { text: "A criança vai para a cama no mesmo horário todas as noites.", rx: true },
+            { text: "A criança adormece dentro de 20 minutos após ir para a cama.", rx: true },
+            { text: "A criança adormece na sua própria cama.", rx: true },
+            { text: "A criança adormece na cama de outra pessoa (pais, irmãos, etc.).", rx: false },
+            { text: "A criança precisa de um dos pais ou cuidador presente no quarto para adormecer.", rx: false },
+            { text: "A criança demonstra relutância ou recusa em ir para a cama.", rx: false },
+            { text: "A criança fala sobre ter medo de dormir no escuro.", rx: false },
+            { text: "A criança fala sobre ter medo de dormir sozinha.", rx: false },
+            { text: "A criança vai para a cama no mesmo horário nos dias de semana e fins de semana.", rx: true },
+            { text: "A criança dorme a mesma quantidade de tempo quase todas as noites.", rx: true },
+            { text: "A criança dorme uma quantidade adequada de horas.", rx: true },
+            { text: "A criança parece cansada ou fadigada durante o dia.", rx: false },
+            { text: "A criança assiste à televisão, joga videogame ou usa telas no quarto perto da hora de dormir.", rx: false },
+            { text: "A criança ronca alto.", rx: false },
+            { text: "A criança parece parar de respirar momentaneamente enquanto dorme.", rx: false },
+            { text: "A criança faz ruídos sufocados, engasgos ou parece lutar para respirar enquanto dorme.", rx: false },
+            { text: "A criança sua excessivamente enquanto dorme.", rx: false },
+            { text: "A criança range os dentes enquanto dorme (bruxismo noturno).", rx: false },
+            { text: "A criança fala enquanto dorme ou sonambula.", rx: false },
+            { text: "A criança acorda urinada na cama (enurese noturna).", rx: false },
+            { text: "A criança se mexe muito ou chuta as cobertas enquanto dorme (sono agitado).", rx: false },
+            { text: "A criança acorda uma vez ou mais durante a noite.", rx: false },
+            { text: "A criança acorda chorando ou gritando no meio da noite (pesadelo/terror noturno).", rx: false },
+            { text: "A criança muda para a cama dos pais ou irmãos após acordar no meio da noite.", rx: false },
+            { text: "A criança acorda sozinha muito cedo pela manhã (antes do horário necessário).", rx: false },
+            { text: "A criança acorda de mau humor ou irritada pela manhã.", rx: false },
+            { text: "A criança precisa de ajuda ou estímulo insistente dos pais para acordar de manhã.", rx: false },
+            { text: "A criança tem grande dificuldade para levantar da cama de manhã.", rx: false },
+            { text: "A criança demora muito tempo para parecer totalmente acordada/alerta pela manhã.", rx: false },
+            { text: "A criança parece sonolenta ou cochila enquanto assiste à TV ou faz atividades paradas.", rx: false },
+            { text: "A criança parece sonolenta ou cochila na escola ou durante passeios de carro.", rx: false },
+            { text: "A criança acorda cansada mesmo após uma noite inteira de sono.", rx: false },
+            { text: "A criança cochila em horários inadequados durante o dia.", rx: false }
+        ];
+
+        const tbody = document.getElementById('questionsBody');
+        
+        // Verifica se a tabela realmente existe antes de inserir os itens
+        if(tbody) {
+            items.forEach((item, index) => {
+                let num = index + 1;
+                let tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${num}</td>
+                    <td>${item.text} ${item.rx ? '<span title="Item de pontuação invertida">🔄</span>' : ''}</td>
+                    <td><input type="radio" name="q${num}" value="3" required></td>
+                    <td><input type="radio" name="q${num}" value="2"></td>
+                    <td><input type="radio" name="q${num}" value="1"></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        const form = document.getElementById('cshqForm');
+        if(form) {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                let rawValues = [0]; 
+                let computedValues = [0];
+
+                for(let i = 1; i <= 33; i++) {
+                    let radio = document.querySelector(`input[name="q${i}"]:checked`);
+                    if(radio) {
+                        let radioVal = parseInt(radio.value);
+                        rawValues.push(radioVal);
+                        
+                        if (items[i-1].rx) {
+                            computedValues.push(4 - radioVal);
+                        } else {
+                            computedValues.push(radioVal);
+                        }
+                    } else {
+                        rawValues.push(0);
+                        computedValues.push(0);
+                    }
+                }
+
+                const s1 = computedValues[1] + computedValues[3] + computedValues[4] + computedValues[5] + computedValues[6] + computedValues[8];
+                const s2 = computedValues[2];
+                const s3 = computedValues[9] + computedValues[10] + computedValues[11];
+                const s4 = computedValues[5] + computedValues[7] + computedValues[8];
+                const s5 = computedValues[22] + computedValues[23] + computedValues[24];
+                const s6 = computedValues[17] + computedValues[18] + computedValues[19] + computedValues[20] + computedValues[21] + computedValues[23];
+                const s7 = computedValues[14] + computedValues[15] + computedValues[16];
+                const s8 = computedValues[12] + computedValues[25] + computedValues[26] + computedValues[27] + computedValues[28] + computedValues[29] + computedValues[30] + computedValues[31] + computedValues[32] + computedValues[33];
+
+                let Total = 0;
+                for(let i = 1; i <= 33; i++) Total += computedValues[i];
+
+                let totalInt = "";
+                let totalDesc = "";
+                if (Total <= 40) {
+                    totalInt = "Padrão de Sono Esperado";
+                    totalDesc = "O sono da criança é predominantemente saudável. Flutuações pontuais nesta faixa podem ser resolvidas com ajustes rotineiros de higiene do sono.";
+                } else {
+                    totalInt = "Rastreio Positivo / Distúrbio do Sono Clínico";
+                    totalDesc = "Pontuação igual ou superior a 41 (ponto de corte clássico). Indica alta probabilidade de distúrbio do sono clinicamente significativo, demandando investigação e manejo.";
+                }
+
+                const checkLevel = (score, modLim, sevLim) => {
+                    if (score <= modLim) return { text: "Baixo / Esperado", sev: false, color: "var(--success-color)" };
+                    if (score < sevLim) return { text: "Moderado", sev: false, color: "var(--warning-color)" };
+                    return { text: "Severo", sev: true, color: "var(--alert-color)" };
+                };
+
+                const res1 = checkLevel(s1, 7, 12);
+                const res2 = checkLevel(s2, 1, 3);
+                const res3 = checkLevel(s3, 4, 7);
+                const res4 = checkLevel(s4, 4, 6);
+                const res5 = checkLevel(s5, 4, 7);
+                const res6 = checkLevel(s6, 7, 11);
+                const res7 = checkLevel(s7, 3, 5);
+                const res8 = checkLevel(s8, 14, 20);
+
+                document.getElementById('totalScore').innerText = Total;
+                document.getElementById('totalInterpret').innerText = totalInt;
+                document.getElementById('totalDesc').innerText = totalDesc;
+
+                document.getElementById('scoreS1').innerText = s1;
+                document.getElementById('levelS1').innerHTML = `<span style="color:${res1.color}">${res1.text}</span>`;
+                document.getElementById('scoreS2').innerText = s2;
+                document.getElementById('levelS2').innerHTML = `<span style="color:${res2.color}">${res2.text}</span>`;
+                document.getElementById('scoreS3').innerText = s3;
+                document.getElementById('levelS3').innerHTML = `<span style="color:${res3.color}">${res3.text}</span>`;
+                document.getElementById('scoreS4').innerText = s4;
+                document.getElementById('levelS4').innerHTML = `<span style="color:${res4.color}">${res4.text}</span>`;
+                document.getElementById('scoreS5').innerText = s5;
+                document.getElementById('levelS5').innerHTML = `<span style="color:${res5.color}">${res5.text}</span>`;
+                document.getElementById('scoreS6').innerText = s6;
+                document.getElementById('levelS6').innerHTML = `<span style="color:${res6.color}">${res6.text}</span>`;
+                document.getElementById('scoreS7').innerText = s7;
+                document.getElementById('levelS7').innerHTML = `<span style="color:${res7.color}">${res7.text}</span>`;
+                document.getElementById('scoreS8').innerText = s8;
+                document.getElementById('levelS8').innerHTML = `<span style="color:${res8.color}">${res8.text}</span>`;
+
+                if (res1.sev || res2.sev || res3.sev || res4.sev || res5.sev || res6.sev || res7.sev || res8.sev) {
+                    document.getElementById('severeAlert').style.display = "block";
+                }
+
+                const labels = { 3: "Sempre", 2: "Às vezes", 1: "Raramente" };
+                let logHtml = "";
+                for(let i = 1; i <= 33; i++) {
+                    let answer = rawValues[i] !== 0 ? labels[rawValues[i]] : "Não respondido";
+                    logHtml += `<li><strong>Item ${i}:</strong> ${items[i-1].text} — <span style="text-decoration: underline;">${answer}</span></li>`;
+                }
+                document.getElementById('answersList').innerHTML = logHtml;
+
+                const dataAtual = new Date();
+                document.getElementById('evalDate').innerText = dataAtual.toLocaleDateString('pt-BR') + ' às ' + dataAtual.toLocaleTimeString('pt-BR');
+
+                document.getElementById('form-section').style.display = "none";
+                document.getElementById('result-section').style.display = "block";
+                window.scrollTo(0, 0);
+            });
+        }
+    };
+</script>
+
+</body>
+</html>
