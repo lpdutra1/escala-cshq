@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Escala CSHQ - Distúrbios do Sono</title>
+    <style>
+        :root {
+            --primary-color: #1a365d;
+            --secondary-color: #2b6cb0;
+            --background: #f7fafc;
+            --border-color: #e2e8f0;
+            --text-color: #2d3748;
+            --alert-color: #e53e3e;
+            --warning-color: #dd6b20;
+            --success-color: #38a169;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 15px; /* Reduzido levemente para telas menores */
+        }
+
+        .container {
+            max-width: 950px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        h1, h2, h3, h4 {
+            color: var(--primary-color);
+        }
+
+        .intro-box {
+            background-color: #ebf8ff;
+            border-left: 4px solid var(--secondary-color);
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        /* Estilos da Tabela Clássica (Desktop) */
+        .table-responsive {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+
+        td:nth-child(2) {
+            text-align: left;
+            font-weight: 500;
+        }
+
+        input[type="radio"] {
+            transform: scale(1.3);
+            cursor: pointer;
+        }
+
+        button {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background-color: #2c5282;
+        }
+
+        /* ----- MÁGICA DA RESPONSIVIDADE (CELULARES) ----- */
+        @media screen and (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            table, thead, tbody, th, td, tr {
+                display: block;
+            }
+            
+            /* Esconde o cabeçalho original da tabela */
+            thead tr {
+                display: none;
+            }
+            
+            /* Transforma cada linha (pergunta) em um cartão */
+            tr {
+                margin-bottom: 20px;
+                border: 1px solid var(--secondary-color);
+                border-radius: 8px;
+                padding: 15px;
+                background-color: #fff;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            }
+            
+            td {
+                border: none;
+                padding: 10px 5px;
+                text-align: left;
+            }
+            
+            /* Estilo do número da questão */
+            td:nth-child(1) {
+                font-weight: bold;
+                color: white;
+                background-color: var(--primary-color);
+                display: inline-block;
+                padding: 5px 10px;
+                border-radius: 4px;
+                margin-bottom: 10px;
+            }
+            
+            /* Estilo do texto da pergunta */
+            td:nth-child(2) {
+                font-size: 1.1em;
+                margin-bottom: 15px;
+                border-bottom: 1px solid var(--border-color);
+                padding-bottom: 15px;
+            }
+            
+            /* Áreas de toque para os Radio Buttons (Sempre, Às vezes, Raramente) */
+            td:nth-child(3), td:nth-child(4), td:nth-child(5) {
+                display: flex;
+                align-items: center;
+                background-color: #f8fafc;
+                margin-bottom: 8px;
+                border-radius: 6px;
+                border: 1px solid var(--border-color);
+            }
+            
+            /* Insere os rótulos dinamicamente ao lado dos botões no celular */
+            td:nth-child(3)::before { content: "Sempre (5-7 vezes/sem):"; font-weight: bold; color: var(--text-color); flex-grow: 1; }
+            td:nth-child(4)::before { content: "Às vezes (2-4 vezes/sem):"; font-weight: bold; color: var(--text-color); flex-grow: 1; }
+            td:nth-child(5)::before { content: "Raramente (0-1 vez/sem):"; font-weight: bold; color: var(--text-color); flex-grow: 1; }
+
+            /* Aumenta a área de toque do botão no celular */
+            input[type="radio"] {
+                transform: scale(1.6);
+                margin-right: 10px;
+            }
+        }
+        /* ------------------------------------------------ */
+
+        #result-section {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .result-card {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert-box {
+            background-color: #fff5f5;
+            border: 1px solid var(--alert-color);
+            color: #9b2c2c;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .subscale-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .subscale-item {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .answers-log {
+            font-size: 0.9em;
+            color: #4a5568;
+            margin-top: 30px;
+            border-top: 2px dashed var(--border-color);
+            padding-top: 20px;
+        }
+
+        .print-btn {
+            background-color: var(--success-color);
+            margin-top: 20px;
+        }
+
+        .print-btn:hover {
+            background-color: #2f855a;
+        }
+
+        .note {
+            font-size: 0.85em;
+            color: #718096;
+            margin-top: 5px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media print {
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; max-width: 100%; padding: 0; }
+            button { display: none; }
+            .intro-box { border: 1px solid #ccc; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="form-section">
+        <h1>Questionário de Hábitos de Sono das Crianças (CSHQ)</h1>
+        
+        <div class="intro-box">
+            <h3>O que é esta escala e qual o seu objetivo?</h3>
+            <p>Os distúrbios do sono são extremamente comuns em crianças e adolescentes, afetando de forma ainda mais acentuada aqueles que estão no Transtorno do Espectro Autista (TEA). Noites mal dormidas impactam diretamente o comportamento diurno, aumentando a irritabilidade, a desregulação emocional e a falta de concentração.</p>
+            <p>A <strong>CSHQ</strong> é uma ferramenta padrão-ouro validada internacionalmente para rastrear problemas de sono. O objetivo deste questionário é mapear os hábitos noturnos do seu filho para identificar se as dificuldades são de origem comportamental (como resistência para ir para a cama) ou biológica/médica (como distúrbios respiratórios). O relatório gerado servirá como um mapa precioso para guiar o médico assistente e a equipe na criação de estratégias personalizadas.</p>
+            
+            <h3>Como preencher o questionário?</h3>
+            <ul>
+                <li><strong>Quem deve responder:</strong> Pais ou cuidadores que acompanham a rotina noturna da criança/adolescente.</li>
+                <li><strong>Período de observação:</strong> Responda pensando em como foi o sono ao longo da <strong>última semana típica</strong>.</li>
+                <li><strong>Critério de escolha:</strong> Avalie a frequência com que cada situação acontece:
+                    <ul>
+                        <li><strong>Sempre:</strong> Acontece de 5 a 7 vezes por semana.</li>
+                        <li><strong>Às vezes:</strong> Acontece de 2 a 4 vezes por semana.</li>
+                        <li><strong>Raramente:</strong> Acontece de 0 a 1 vez por semana.</li>
+                    </ul>
+                </li>
+            </ul>
+            <p class="note"><em>Nota: O símbolo 🔄 indica comportamentos de sono saudáveis. Para estes itens, responder "Sempre" é positivo. Seja totalmente sincero em suas respostas.</em></p>
+        </div>
+
+        <form id="cshqForm">
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nº</th>
+                            <th>Comportamento Observado</th>
+                            <th>Sempre<br><small>(5-7 vezes/sem)</small></th>
+                            <th>Às vezes<br><small>(2-4 vezes/sem)</small></th>
+                            <th>Raramente<br><small>(0-1 vez/sem)</small></th>
+                        </tr>
+                    </thead>
+                    <tbody id="questionsBody">
+                        </tbody>
+                </table>
+            </div>
+            <button type="submit">Gerar Relatório de Sono</button>
+        </form>
+    </div>
+
+    <div id="result-section">
+        <h1>Relatório Clínico - Triagem de Sono CSHQ</h1>
+        <p><strong>Data da Avaliação:</strong> <span id="evalDate"></span></p>
+
+        <div class="alert-box" id="severeAlert">
+            ⚠️ <strong>ALERTA CLÍNICO:</strong> O paciente apresentou pontuação em nível SEVERO em uma ou mais subescalas. Se o nível Severo ocorreu em "Distúrbios Respiratórios" ou "Início do Sono", recomenda-se avaliação médica imediata (ex: Otorrinolaringologia ou Polissonografia) antes de intervenções puramente comportamentais.
+        </div>
+
+        <div class="result-card">
+            <h2>Escore Total: <span id="totalScore"></span> / 99</h2>
+            <p>Direcionamento: <strong id="totalInterpret"></strong></p>
+            <p id="totalDesc"></p>
+        </div>
+
+        <h3>Análise Estruturada por Subescalas</h3>
+        <div class="subscale-grid">
+            <div class="subscale-item">
+                <h4>1. Resistência para ir para a Cama</h4>
+                <strong>Pontuação: <span id="scoreS1"></span> / 18</strong>
+                <p>Nível: <strong id="levelS1"></strong></p>
+            </div>
+            <div class="subscale-item">
+                <h4>2. Início do Sono (Insônia Inicial)</h4>
+                <strong>Pontuação: <span id="scoreS2"></span> / 3</strong>
+                <p>Nível: <strong id="levelS2"></strong></p>
+            </div>
+            <div class="subscale-item">
+                <h4>3. Duração do Sono</h4>
+                <strong>Pontuação: <span id="scoreS3"></span> / 9</strong>
+                <p>Nível: <strong id="levelS3"></strong></p>
+            </div>
+            <div class="subscale-item">
+                <h4>4. Ansiedade Noturna</h4>
+                <strong>Pontuação: <span id="scoreS4"></span> / 9</strong>
+                <p>Nível: <strong id="levelS4"></strong></p>
+            </div>
+            <div class="subscale-item">
+                <h4>5. Despertares Noturnos</h4>
+                <strong>Pontuação: <span id="scoreS5"></span> / 9</strong>
+                <p>Nível: <strong id="levelS5"></strong></p>
+            </div>
+            <div class="subscale-item">
+                <h4>6. Parassônias
